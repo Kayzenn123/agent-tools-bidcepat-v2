@@ -1,0 +1,42 @@
+site:
+  name: BidCepat
+  site: 'https://agent-tools-bidcepat.vercel.app'
+  base: '/'
+  trailingSlash: false
+
+# Default SEO metadata
+metadata:
+  title:
+    default: BidCepat — Generator Pesan Bid & Kalkulator Tarif Freelancer
+    template: '%s — BidCepat'
+  description: 'Tool gratis untuk freelancer Indonesia: generator draft pesan bid yang sopan-profesional, kalkulator tarif bersih setelah fee platform, dan checklist anti-scam interaktif.'
+  robots:
+    index: true
+    follow: true
+  openGraph:
+    site_name: BidCepat
+    images:
+      - url: '~/assets/images/og-bidcepat.png'
+        width: 1200
+        height: 630
+    type: website
+  twitter:
+    handle: '@ngoprek.dev'
+    site: '@ngoprek.dev'
+    cardType: summary_large_image
+
+i18n:
+  language: id
+  textDirection: ltr
+
+apps:
+  blog:
+    isEnabled: false
+
+analytics:
+  vendors:
+    googleAnalytics:
+      id: null # or "G-XXXXXXXXXX"
+
+ui:
+  theme: 'light:only' # seed 2026-10-16: mode light
