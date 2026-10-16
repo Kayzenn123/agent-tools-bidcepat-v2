@@ -4,7 +4,7 @@
 kalkulator tarif bersih setelah fee platform, dan checklist anti-scam interaktif. 100% berjalan di browser,
 tanpa daftar, tanpa server.
 
-🔗 Live: https://agent-tools-bidcepat.vercel.app (atau URL deploy aktual di bawah)
+🔗 Live: https://kayzenn123.github.io/agent-tools-bidcepat-v2/ (GitHub Pages; jalur deploy fallback — Vercel MCP write butuh approval yang tak tersedia di subagent)
 
 ## Fitur
 
