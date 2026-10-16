@@ -1,7 +1,7 @@
 site:
   name: BidCepat
-  site: 'https://agent-tools-bidcepat.vercel.app'
-  base: '/'
+  site: 'https://kayzenn123.github.io/agent-tools-bidcepat-v2'
+  base: '/agent-tools-bidcepat-v2'
   trailingSlash: false
 
 # Default SEO metadata
