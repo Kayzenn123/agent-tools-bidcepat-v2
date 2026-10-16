@@ -1,0 +1,167 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const LS_KEY = 'bidcepat:v1';
+
+const ITEMS = [
+  {
+    id: 'dp',
+    text: 'Minta DP (uang muka) via rekber/platform sebelum mulai kerja.',
+    why: 'Freelancer tanpa DP = kerja dengan risiko 100%.',
+  },
+  {
+    id: 'admin',
+    text: 'Jangan pernah membayar "biaya admin", "aktivasi", atau "deposit" ke klien.',
+    why: 'Klien asli membayar kamu, bukan sebaliknya. Ini ciri scam paling umum.',
+  },
+  {
+    id: 'profil',
+    text: 'Cek profil klien: rating, riwayat proyek, dan status verifikasi akun.',
+    why: 'Akun baru tanpa riwayat + proyek besar = waspada ekstra.',
+  },
+  {
+    id: 'brief',
+    text: 'Minta brief tertulis yang jelas sebelum menyepakati harga.',
+    why: 'Brief kabur bikin revisi tak berujung dan sengketa bayaran.',
+  },
+  {
+    id: 'kontrak',
+    text: 'Buat kesepakatan tertulis: scope, deadline, jumlah revisi, dan skema pembayaran.',
+    why: 'Chat yang disepakati dua pihak sudah cukup sebagai bukti awal.',
+  },
+  {
+    id: 'tarif',
+    text: 'Waspadai tawaran tarif yang jauh di atas kewajaran.',
+    why: 'Umpan tarif fantastis sering dipakai untuk memancing data/uangmu.',
+  },
+  {
+    id: 'master',
+    text: 'Jangan kirim file master/sumber sebelum pembayaran lunas.',
+    why: 'Kirim preview ber-watermark dulu; file asli setelah lunas.',
+  },
+  {
+    id: 'bukti',
+    text: 'Simpan semua bukti chat dan transfer sampai proyek benar-benar selesai.',
+    why: 'Kalau sengketa, bukti lengkap mempercepat mediasi platform.',
+  },
+  {
+    id: 'luarplatform',
+    text: 'Waspadai klien yang buru-buru memindah chat ke luar platform (WA/Telegram pribadi).',
+    why: 'Di luar platform, proteksi dan mediasi resmi tidak berlaku. (investor.id, 14 Okt 2026)',
+  },
+  {
+    id: 'software',
+    text: 'Jangan instal software atau aplikasi yang dikirim klien.',
+    why: 'Modus umum penyebaran malware berkedok "tools kerja". (investor.id, 14 Okt 2026)',
+  },
+  {
+    id: 'ktp',
+    text: 'Jangan kirim foto KTP atau dokumen pribadi ke klien.',
+    why: 'Klien asli tidak butuh dokumen identitasmu. (investor.id, 14 Okt 2026)',
+  },
+];
+---
+
+<section id="checklist" class="card-line mx-auto max-w-4xl p-6 sm:p-10 scroll-mt-24" aria-labelledby="checklist-title">
+  <div class="mb-2 flex items-center gap-3">
+    <Icon name="tabler:shield-check" class="h-8 w-8" aria-hidden="true" />
+    <p class="font-hand text-2xl" style="color: var(--bc-pop)">daftar periksa loket —</p>
+  </div>
+  <h2 id="checklist-title" class="font-display text-3xl sm:text-4xl mb-2">Checklist Anti-Scam</h2>
+  <p class="mb-6 max-w-2xl" style="color: var(--aw-color-text-muted)">
+    Sebelas pemeriksaan singkat sebelum deal dengan klien baru. Centang yang sudah kamu lakukan — progres tersimpan
+    otomatis di browser.
+  </p>
+
+  <div
+    class="mb-6 flex items-center gap-4"
+    role="progressbar"
+    aria-valuemin="0"
+    aria-valuemax="11"
+    aria-valuenow="0"
+    id="check-progress"
+    aria-label="Progres checklist anti-scam"
+  >
+    <div class="progress-shell flex-1"><div class="progress-fill" id="check-fill"></div></div>
+    <p class="font-display text-lg whitespace-nowrap"><span id="check-count">0</span>/11</p>
+  </div>
+
+  <ul class="grid gap-3" id="check-list">
+    {
+      ITEMS.map((item) => (
+        <li>
+          <label class="check-item" data-id={item.id}>
+            <input type="checkbox" class="check-box" aria-describedby={'why-' + item.id} />
+            <span>
+              <span class="check-text block font-medium">{item.text}</span>
+              <span class="block text-sm mt-1" id={'why-' + item.id} style="color: var(--aw-color-text-muted)">
+                {item.why}
+              </span>
+            </span>
+          </label>
+        </li>
+      ))
+    }
+  </ul>
+
+  <div class="mt-6 flex flex-wrap items-center gap-3">
+    <button type="button" id="check-reset" class="btn">
+      <Icon name="tabler:refresh" class="h-5 w-5" aria-hidden="true" /> Ulangi checklist
+    </button>
+    <p class="font-hand text-xl hidden" id="check-done-msg" style="color: var(--bc-pop)">siap tempur, kak!</p>
+  </div>
+  <p class="mt-4 text-sm" style="color: var(--aw-color-text-muted)">
+    Catatan loket: daftar ini berisi nasihat umum, bukan nasihat hukum. Untuk sengketa serius, gunakan mediasi resmi
+    platform.
+  </p>
+</section>
+
+<script define:vars={{ LS_KEY, ITEMS }}>
+  const boxes = [...document.querySelectorAll('#check-list .check-item')];
+  const fill = document.getElementById('check-fill');
+  const count = document.getElementById('check-count');
+  const progress = document.getElementById('check-progress');
+  const doneMsg = document.getElementById('check-done-msg');
+  const total = ITEMS.length;
+
+  function render() {
+    const done = boxes.filter((li) => li.querySelector('input').checked).length;
+    boxes.forEach((li) => li.classList.toggle('done', li.querySelector('input').checked));
+    fill.style.width = (done / total) * 100 + '%';
+    count.textContent = String(done);
+    progress.setAttribute('aria-valuenow', String(done));
+    doneMsg.classList.toggle('hidden', done !== total);
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      const state = {};
+      boxes.forEach((li) => {
+        state[li.dataset.id] = li.querySelector('input').checked;
+      });
+      localStorage.setItem(LS_KEY, JSON.stringify({ ...data, checklist: state }));
+    } catch {
+      /* penyimpanan lokal tidak tersedia */
+    }
+  }
+
+  boxes.forEach((li) => li.querySelector('input').addEventListener('change', render));
+  document.getElementById('check-reset').addEventListener('click', () => {
+    boxes.forEach((li) => {
+      li.querySelector('input').checked = false;
+    });
+    render();
+  });
+
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    if (data && data.checklist) {
+      boxes.forEach((li) => {
+        if (data.checklist[li.dataset.id]) li.querySelector('input').checked = true;
+      });
+    }
+  } catch {
+    /* penyimpanan lokal tidak tersedia */
+  }
+  render();
+</script>
