@@ -1,0 +1,206 @@
+---
+import { Icon } from 'astro-icon/components';
+
+const LS_KEY = 'bidcepat:v1';
+---
+
+<section
+  id="kalkulator"
+  class="card-line mx-auto max-w-4xl p-6 sm:p-10 scroll-mt-24"
+  aria-labelledby="kalkulator-title"
+>
+  <div class="mb-2 flex items-center gap-3">
+    <Icon name="tabler:calculator" class="h-8 w-8" aria-hidden="true" />
+    <p class="font-hand text-2xl" style="color: var(--bc-pop)">buku kas kecil —</p>
+  </div>
+  <h2 id="kalkulator-title" class="font-display text-3xl sm:text-4xl mb-2">Kalkulator Tarif Bersih</h2>
+  <p class="mb-8 max-w-2xl" style="color: var(--aw-color-text-muted)">
+    Hitung tarif kotor lalu kurangi fee platform supaya tahu angka bersih yang benar-benar masuk ke kantong.
+  </p>
+
+  <div class="grid gap-5 sm:grid-cols-3">
+    <div>
+      <label class="bc-label" for="calc-hari">Hari kerja</label>
+      <input
+        class="input-line"
+        id="calc-hari"
+        type="number"
+        min="1"
+        max="365"
+        inputmode="numeric"
+        placeholder="cth. 5"
+      />
+      <p class="field-msg" id="msgc-hari" aria-live="polite"></p>
+    </div>
+    <div>
+      <label class="bc-label" for="calc-harian">Tarif harian (Rp)</label>
+      <input
+        class="input-line"
+        id="calc-harian"
+        type="number"
+        min="1000"
+        step="1000"
+        inputmode="numeric"
+        placeholder="cth. 500000"
+      />
+      <p class="field-msg" id="msgc-harian" aria-live="polite"></p>
+    </div>
+    <div>
+      <label class="bc-label" for="calc-fee">Fee platform (%)</label>
+      <input
+        class="input-line"
+        id="calc-fee"
+        type="number"
+        min="0"
+        max="100"
+        step="0.5"
+        inputmode="decimal"
+        placeholder="mis. 10"
+      />
+      <p class="field-msg" id="msgc-fee" aria-live="polite"></p>
+    </div>
+  </div>
+  <p class="mt-2 text-sm" style="color: var(--aw-color-text-muted)">
+    <Icon name="tabler:alert-triangle" class="inline h-4 w-4" aria-hidden="true" />
+    Fee tiap platform bisa berbeda dan berubah sewaktu-waktu — cek halaman fee resmi platformnya, lalu isi angkanya di sini.
+  </p>
+
+  <div class="mt-6 flex flex-wrap gap-3">
+    <button type="button" id="calc-hitung" class="btn-primary">
+      <Icon name="tabler:coin" class="h-5 w-5" aria-hidden="true" /> Hitung tarif
+    </button>
+    <button type="button" id="calc-reset" class="btn">
+      <Icon name="tabler:refresh" class="h-5 w-5" aria-hidden="true" /> Kosongkan
+    </button>
+  </div>
+
+  <div id="calc-hasil-wrap" class="mt-8 hidden" aria-live="polite">
+    <h3 class="font-display text-xl mb-3">Rincian ledger</h3>
+    <div class="card-surface p-2 sm:p-4 overflow-x-auto">
+      <table class="ledger">
+        <tbody>
+          <tr>
+            <th scope="row"
+              >Tarif kotor <span class="font-normal text-sm" id="calc-rumus" style="color: var(--aw-color-text-muted)"
+              ></span></th
+            >
+            <td class="num" id="calc-kotor">Rp0</td>
+          </tr>
+          <tr>
+            <th scope="row"
+              >Potongan fee platform <span
+                class="font-normal text-sm"
+                id="calc-feelabel"
+                style="color: var(--aw-color-text-muted)"></span></th
+            >
+            <td class="num" id="calc-potongan" style="color: var(--bc-pop)">Rp0</td>
+          </tr>
+          <tr>
+            <th scope="row" class="font-display text-lg">Tarif bersih diterima</th>
+            <td class="num font-display text-lg" id="calc-bersih" style="color: var(--bc-ink-blue)">Rp0</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-3 text-sm" style="color: var(--aw-color-text-muted)">
+      Angka bersih ini yang dipakai untuk memutuskan: cukup atau perlu naikkan penawaran.
+    </p>
+  </div>
+</section>
+
+<script define:vars={{ LS_KEY }}>
+  const $ = (id) => document.getElementById('calc-' + id);
+  const rupiah = (n) =>
+    new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(n);
+
+  function setMsg(f, text) {
+    const msg = document.getElementById('msgc-' + f);
+    const wrapEl = $('' + f).closest('div');
+    msg.textContent = text;
+    msg.className = 'field-msg' + (text ? ' err' : '');
+    wrapEl.classList.toggle('field-error', !!text);
+    return !text;
+  }
+
+  function validate() {
+    let ok = true,
+      first = null;
+    const hari = $('hari').value.trim(),
+      harian = $('harian').value.trim(),
+      fee = $('fee').value.trim();
+    if (!hari || !/^\d+$/.test(hari) || Number(hari) < 1) {
+      setMsg('hari', 'Isi jumlah hari kerja, minimal 1.');
+      ok = false;
+      first = first || $('hari');
+    } else setMsg('hari', '');
+    if (!harian || !/^\d+$/.test(harian) || Number(harian) < 1000) {
+      setMsg('harian', 'Isi tarif harian dalam rupiah, minimal Rp1.000.');
+      ok = false;
+      first = first || $('harian');
+    } else setMsg('harian', '');
+    if (fee === '' || isNaN(Number(fee)) || Number(fee) < 0 || Number(fee) > 100) {
+      setMsg('fee', 'Isi fee 0–100. Cek halaman fee resmi platformnya.');
+      ok = false;
+      first = first || $('fee');
+    } else setMsg('fee', '');
+    if (first) first.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return ok ? { hari: Number(hari), harian: Number(harian), fee: Number(fee) } : null;
+  }
+
+  function hitung() {
+    const v = validate();
+    if (!v) return;
+    const kotor = v.hari * v.harian;
+    const potongan = Math.round((kotor * v.fee) / 100);
+    const bersih = kotor - potongan;
+    $('kotor').textContent = rupiah(kotor);
+    $('potongan').textContent = '− ' + rupiah(potongan);
+    $('bersih').textContent = rupiah(bersih);
+    $('rumus').textContent = `(${v.hari} hari × ${rupiah(v.harian)})`;
+    $('feelabel').textContent = `(${v.fee}%)`;
+    document.getElementById('calc-hasil-wrap').classList.remove('hidden');
+    try {
+      const raw = localStorage.getItem(LS_KEY);
+      const data = raw ? JSON.parse(raw) : {};
+      localStorage.setItem(
+        LS_KEY,
+        JSON.stringify({ ...data, calc: { hari: String(v.hari), harian: String(v.harian), fee: String(v.fee) } })
+      );
+    } catch {
+      /* penyimpanan lokal tidak tersedia */
+    }
+  }
+
+  ['hari', 'harian', 'fee'].forEach((f) => {
+    $(f).addEventListener('input', () => {
+      const m = document.getElementById('msgc-' + f);
+      if (m.classList.contains('err')) setMsg(f, '');
+    });
+    $(f).addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        hitung();
+      }
+    });
+  });
+  $('hitung').addEventListener('click', hitung);
+  $('reset').addEventListener('click', () => {
+    ['hari', 'harian', 'fee'].forEach((f) => {
+      $(f).value = '';
+      setMsg(f, '');
+    });
+    document.getElementById('calc-hasil-wrap').classList.add('hidden');
+  });
+
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    const data = raw ? JSON.parse(raw) : null;
+    if (data && data.calc) {
+      $('hari').value = data.calc.hari || '';
+      $('harian').value = data.calc.harian || '';
+      $('fee').value = data.calc.fee || '';
+    }
+  } catch {
+    /* penyimpanan lokal tidak tersedia */
+  }
+</script>
